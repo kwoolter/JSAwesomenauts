@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Awesomenauts</title>
+        <link rel="stylesheet" href="template.css">
+        <script type="text/javascript" src="awesomenauts_cards.js"></script>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+
+    <body onload="init();">
+        <button type="button" onclick="showRandomCard()">Randomize</button>
+        <div></div>
+
+        <table id="A" class="card" style="width:9cm;">
+            <tbody>
+                <!-- Top row - header of the card -->
+                <tr class="card_header">
+                    <th id="an_header" colspan="2" style="text-align:center;">Admiral Swiggins</th>
+                </tr>
+                <tr class="top">
+                    <td style="background-color:black;width:25%;">
+                        <img id="an_img" src="https://static.wikia.nocookie.net/awesomenauts_gamepedia/images/0/0c/CharacterRender_swiggins_redBG.png" border=0 width=100>
+                    </td>
+                    <td id="an_stats" style="width:75%;">
+                        Health:1500 (2640)<br>Movement Speed:7.2<br>Attack Type:Melee/Ranged<br>Role:Fighter<br>Mobility:Tactical<br>
+                    </td>
+                </tr>
+                <!-- Skill information -->
+                <tr class="skill_header">
+                    <td id="an_skill_name" colspan="2" style="text-align:center">Skill: Anchor Hook</td>
+                </tr>
+                <tr class="top">
+                    <td style="text-align:center;padding:4px;background-color:black;">
+                        <img id="an_skill_img" src="https://static.wikia.nocookie.net/awesomenauts_gamepedia/images/0/0b/UI_Skillbutton_Captain_AnchorHook.png" border=0 height=100 width=100>
+                    </td>
+                    <td id="an_skill_stats" style="text-align:left;">
+                        Damage:310 (486.7)<br>Droid damage:100 (157)<br>Stun Duration:0.25s<br>Cooldown:7s<br>Range:11<br>
+                    </td>
+                </tr>
+                <!-- Upgrade information -->
+                <tr class="upgrade_header">
+                    <td id="an_upgrade_name" colspan="2">Upgrade: Flying Fish Compass</td>
+                </tr>
+                <tr class="top">
+                    <td style="text-align:center;padding:4px;background-color:black;">
+                        <img id="an_upgrade_img" src="https://static.wikia.nocookie.net/awesomenauts_gamepedia/images/e/e3/Shop_icons_captain_skill_b_upgrade_a.png" border=0 height=100 width=100>
+                    </td>
+                    <td id="an_upgrade_description" style="text-align:center;padding:3px;">
+                        Reduces the cooldown of anchor hook  In the winter they point south, in the summer they point north, easy!<br>Cost [$190]
+                    </td>
+                </tr>
+                <!-- Second stats section -->
+                <tr class="middle">
+                    <td id="an_upgrade_level_1" colspan="2" style="text-align:center;">Upgrade Lv1: Cooldown -2s</td>
+                </tr>
+                <tr class="middle">
+                    <td id="an_upgrade_level_2" colspan="2" style="text-align:center;">Upgrade Lv2 : None</td>
+                </tr>
+            </tbody>
+        </table>
+        <!-- The end of the card layout table -->
+
+    </body>
+
+</html>
+
