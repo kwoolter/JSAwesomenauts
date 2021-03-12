@@ -7,6 +7,7 @@
 
 var globalCharacterData;
 var globalCharacterNames = [];
+var globalCardSlot = 1;
 
 function init() {
 
@@ -232,4 +233,21 @@ function showRandomCard() {
     var characterName = globalCharacterNames[Math.floor(Math.random() * globalCharacterNames.length)];
     var characterData = globalCharacterData[characterName];
     renderCharacter(characterData);
+}
+
+function dealCard(cardHTML, slot = 1) {
+    slot = globalCardSlot;
+    var card_id = "card" + slot;
+
+    var newCard = document.getElementById("card_template");
+    var newSlot = document.getElementById(card_id);
+
+    newSlot.innerHTML = newCard.innerHTML;
+
+    globalCardSlot += 1;
+    if (globalCardSlot > 3) {
+    globalCardSlot = 1;}
+
+
+
 }
