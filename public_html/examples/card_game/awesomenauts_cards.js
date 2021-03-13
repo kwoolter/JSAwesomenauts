@@ -10,8 +10,16 @@ var globalCharacterNames = [];
 var globalCardSlot = 1;
 var globalQuestionNumber = 1;
 var globalMaxQuestionNumber = 5;
+var globalQuestionOptions = 4;
 var globalState;
 
+// Choose a random element from a list
+function choose(options) {
+    return options[Math.floor(Math.random() * options.length)];
+}
+
+
+// Initialise the page
 function init() {
 
     console.log("Initialising...");
@@ -24,55 +32,89 @@ function init() {
 
 }
 
+// Start the game
 function startGame() {
 
  globalState = "PLAYING";
  globalQuestionNumber = 1;
+  generateQuestion();
  renderState();
 
 }
 
+// Go to the next question
 function next() {
  globalQuestionNumber += 1;
  if (globalQuestionNumber > globalMaxQuestionNumber) {
     globalState = "FINISHED";
  }
  generateQuestion();
-
-
   renderState();
 
 }
 
+// Generate a random question
 function generateQuestion() {
-    characters = new Set();
-    while (characters.size < 3) {
 
-        characters.add(Math.floor(Math.random() * globalCharacterNames.length))
+    let attributes = ["Health", "Health Max", "Movement Speed"];
+    let scales = ["smallest", "biggest"];
+
+    var characters = new Set();
+    var attribute_values = new Set();
+
+    var attributeName = choose(attributes);
+    var scale = choose(scales);
+
+    var characterName;
+    var characterDetails;
+
+    // Build a list of characters that all have a different value for the selected attribute
+    while (attribute_values.size < globalQuestionOptions) {
+
+        characterName = choose(globalCharacterNames);
+        characterDetails = globalCharacterData[characterName];
+
+        // If we don't have this attribute vale already then add to the list
+        if (attribute_values.has(characterDetails[attributeName]) == false){
+            attribute_values.add(characterDetails[attributeName]);
+            characters.add(characterName);
+        }
 
     }
-
-    console.log(characters);
 
     var optionsHTML = "";
     var cardHTML = "";
     var slot = 1;
-    characters.forEach(function (character_id) {
-        var characterName = globalCharacterNames[character_id];
-        var characterDetails = globalCharacterData[characterName];
+
+    // Loop through the selected character names
+    characters.forEach(function (characterName) {
+
+        // Show the card for each character
+        characterDetails = globalCharacterData[characterName];
         cardHTML = renderCharacter(characterDetails);
         dealCard(cardHTML, slot = slot);
+        slot += 1;
 
-      console.log(character_id);
-      console.log(globalCharacterNames[character_id]);
-      optionsHTML += "<li>" + characterName + "</li>";
+        // Build a list of the characters to choose from
+        optionsHTML += "<li>" + characterName + "</li>";
 
-
-      slot += 1;
 
     });
 
-        document.getElementById("options").innerHTML = optionsHTML;;
+    var question_text = "Who has the " + (scale + " " + attributeName + "?").toLowerCase();
+    document.getElementById("question_text").innerHTML = question_text;
+    document.getElementById("options").innerHTML = optionsHTML;
+
+}
+
+// The user selected the answer to a question
+function answer(selection) {
+    if (globalState == "PLAYING") {
+        console.log("You choose answer " + selection);
+    }
+    else {
+        console.log("You cannot choose an answer in state " + globalState);
+    }
 
 }
 
@@ -95,6 +137,11 @@ function renderState() {
             document.getElementById("next").style.display = "none";
             }
 
+    var answersHTML="";
+    for (var i=1; i<globalMaxQuestionNumber;i++) {
+        answersHTML += '<button class="button" type="button" onclick="answer(' + i + ')">' + i + '</button>';
+        }
+    document.getElementById("answers").innerHTML = answersHTML;
 
 }
 
@@ -235,20 +282,13 @@ function renderCharacter(data, skillName = "", upgradeName = "") {
     console.log("Rendering character " + characterName);
 
     var skills = data["skills"];
-    var skill;
-    if (skillName == "") {
-        skill = skills[Math.floor(Math.random() * skills.length)];
-        skillName = skill["name"];
-    } else {
-        x = 10;
-    }
+    var skill = choose(skills);
+    var skillName = skill["name"];
 
     var upgrades = skill["upgrades"];
-    var upgrade;
-    if (upgradeName == "") {
-        upgrade = upgrades[Math.floor(Math.random() * upgrades.length)];
-        upgradeName = upgrade["name"];
-    }
+    var upgrade = choose(upgrades);
+    var upgradeName = upgrade["name"];
+
 
 
     console.log("\tRendering skill " + skillName);
@@ -256,7 +296,7 @@ function renderCharacter(data, skillName = "", upgradeName = "") {
     document.getElementById("an_img").src = characterImage;
 
     // Print the key attributes and their values...
-    var key_data_items = ["Health", "Movement Speed", "Attack Type", "Role", "Mobility"];
+    var key_data_items = ["Health", "Health Max", "Movement Speed", "Attack Type", "Role", "Mobility"];
     var stats_html = "";
 
     key_data_items.forEach(function (item, index) {
@@ -315,18 +355,12 @@ function showRandomCard() {
 }
 
 function dealCard(cardHTML, slot = 1) {
-    slot = globalCardSlot;
-    var card_id = "card" + slot;
 
+    var card_id = "card" + slot;
     var newCard = document.getElementById("card_template");
     var newSlot = document.getElementById(card_id);
 
     newSlot.innerHTML = newCard.innerHTML;
-
-    globalCardSlot += 1;
-    if (globalCardSlot > 3) {
-    globalCardSlot = 1;}
-
 
 
 }
