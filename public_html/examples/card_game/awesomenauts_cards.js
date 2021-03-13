@@ -11,6 +11,7 @@ var globalCardSlot = 1;
 var globalQuestionNumber = 1;
 var globalMaxQuestionNumber = 5;
 var globalQuestionOptions = 4;
+var globalQuestionAnswer;
 var globalState;
 
 // Choose a random element from a list
@@ -59,8 +60,8 @@ function generateQuestion() {
     let attributes = ["Health", "Health Max", "Movement Speed"];
     let scales = ["smallest", "biggest"];
 
-    var characters = new Set();
-    var attribute_values = new Set();
+    var characters = [];
+    var attribute_values = [];
 
     var attributeName = choose(attributes);
     var scale = choose(scales);
@@ -69,18 +70,30 @@ function generateQuestion() {
     var characterDetails;
 
     // Build a list of characters that all have a different value for the selected attribute
-    while (attribute_values.size < globalQuestionOptions) {
+    while (attribute_values.length < globalQuestionOptions) {
 
         characterName = choose(globalCharacterNames);
         characterDetails = globalCharacterData[characterName];
 
-        // If we don't have this attribute vale already then add to the list
-        if (attribute_values.has(characterDetails[attributeName]) == false){
-            attribute_values.add(characterDetails[attributeName]);
-            characters.add(characterName);
+        // If we don't have this attribute value already then add to the list
+        if (attribute_values.indexOf(characterDetails[attributeName]) == -1){
+            attribute_values.push(characterDetails[attributeName]);
+            characters.push(characterName);
         }
 
     }
+
+
+    var minAnswer = attribute_values.indexOf(Math.min.apply(null, attribute_values)) + 1;
+    var maxAnswer = attribute_values.indexOf(Math.max.apply(null, attribute_values)) + 1;
+
+    if (scale == "smallest") {
+        globalQuestionAnswer = minAnswer;
+    }
+    else if (scale == "biggest") {
+        globalQuestionAnswer = maxAnswer;
+    }
+
 
     var optionsHTML = "";
     var cardHTML = "";
@@ -111,6 +124,7 @@ function generateQuestion() {
 function answer(selection) {
     if (globalState == "PLAYING") {
         console.log("You choose answer " + selection);
+        console.log("The correct answer was " + globalQuestionAnswer);
     }
     else {
         console.log("You cannot choose an answer in state " + globalState);
