@@ -8,14 +8,93 @@
 var globalCharacterData;
 var globalCharacterNames = [];
 var globalCardSlot = 1;
+var globalQuestionNumber = 1;
+var globalMaxQuestionNumber = 5;
+var globalState;
 
 function init() {
 
     console.log("Initialising...");
+    globalState = "LOADED";
+     renderState();
 
     loadCardData();
     //loadCardDataAsync();
     printCardData();
+
+}
+
+function startGame() {
+
+ globalState = "PLAYING";
+ globalQuestionNumber = 1;
+ renderState();
+
+}
+
+function next() {
+ globalQuestionNumber += 1;
+ if (globalQuestionNumber > globalMaxQuestionNumber) {
+    globalState = "FINISHED";
+ }
+ generateQuestion();
+
+
+  renderState();
+
+}
+
+function generateQuestion() {
+    characters = new Set();
+    while (characters.size < 3) {
+
+        characters.add(Math.floor(Math.random() * globalCharacterNames.length))
+
+    }
+
+    console.log(characters);
+
+    var optionsHTML = "";
+    var cardHTML = "";
+    var slot = 1;
+    characters.forEach(function (character_id) {
+        var characterName = globalCharacterNames[character_id];
+        var characterDetails = globalCharacterData[characterName];
+        cardHTML = renderCharacter(characterDetails);
+        dealCard(cardHTML, slot = slot);
+
+      console.log(character_id);
+      console.log(globalCharacterNames[character_id]);
+      optionsHTML += "<li>" + characterName + "</li>";
+
+
+      slot += 1;
+
+    });
+
+        document.getElementById("options").innerHTML = optionsHTML;;
+
+}
+
+function renderState() {
+
+    document.getElementById("state").innerHTML = globalState;
+    document.getElementById("question").innerHTML = "Question #" + globalQuestionNumber;
+
+    if (globalState == "PLAYING") {
+        document.getElementById("start").style.display = "none";
+        document.getElementById("next").style.display = "block";
+    }
+    else if (globalState == "LOADED") {
+            document.getElementById("start").style.display = "block";
+            document.getElementById("next").style.display = "none";
+            }
+
+    else if (globalState == "FINISHED") {
+            document.getElementById("start").style.display = "block";
+            document.getElementById("next").style.display = "none";
+            }
+
 
 }
 
