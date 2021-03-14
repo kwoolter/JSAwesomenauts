@@ -84,6 +84,7 @@ function generateQuestion() {
 
     }
 
+    // Store which characters were selected
     globalSelectedCharacterNames = characters;
 
 
@@ -107,7 +108,7 @@ function generateQuestion() {
 
         // Show the card for each character
         characterDetails = globalCharacterData[characterName];
-        cardHTML = renderCharacter(characterDetails,undefined, undefined, showCharacter = true, showSkill = false, showUpgrade = false);
+        cardHTML = renderCharacter(characterDetails,undefined, undefined, showCharacter = false, showSkill = false, showUpgrade = false);
         dealCard(cardHTML, slot = slot);
         slot += 1;
 
@@ -136,7 +137,7 @@ function answer(selection) {
 
             // Show the card for each character
             var characterDetails = globalCharacterData[characterName];
-            cardHTML = renderCharacter(characterDetails,undefined, undefined, showCharacter = true, showSkill = true, showUpgrade = true);
+            cardHTML = renderCharacter(characterDetails,undefined, undefined, showCharacter = true, showSkill = false, showUpgrade = false);
             dealCard(cardHTML, slot = slot);
             slot += 1;
 
@@ -326,6 +327,13 @@ function renderCharacter(data, skillName = "", upgradeName = "", showCharacter =
     // Render the character details...
     console.log("Rendering character " + characterName + " show=" + showCharacter);
 
+    if (showCharacter == false) {
+        document.getElementById("character").style.visibility = "hidden";
+    }
+    else {
+        document.getElementById("character").style.visibility = "visible";
+    }
+
     document.getElementById("an_header").innerHTML = characterName;
     document.getElementById("an_img").src = characterImage;
 
@@ -340,13 +348,21 @@ function renderCharacter(data, skillName = "", upgradeName = "", showCharacter =
 
     document.getElementById("an_stats").innerHTML = stats_html;
 
-    if (showCharacter == false) {
-        document.getElementById("character").style.display = "none";
-    }
+
 
 
     // Render the skill section of the card...
     console.log("\tRendering skill " + skillName + " show="+showSkill);
+
+    if (showSkill == false) {
+        document.getElementById("skill1").style.visibility = "hidden";
+        document.getElementById("skill2").style.visibility = "hidden";
+    }
+    else {
+        document.getElementById("skill1").style.visibility = "visible";
+        document.getElementById("skill2").style.visibility = "visible";
+
+    }
 
     document.getElementById("an_skill_name").innerHTML = "Skill: " + skillName;
     document.getElementById("an_skill_img").src = skill["img"];
@@ -359,15 +375,23 @@ function renderCharacter(data, skillName = "", upgradeName = "", showCharacter =
         stats_html += stat + ": " + skill_stats[stat] + "<br>";
     }
 
-    if (showSkill == false) {
-        document.getElementById("skill1").style.display = "none";
-        document.getElementById("skill2").style.display = "none";
-    }
+
 
     document.getElementById("an_skill_stats").innerHTML = stats_html;
 
     // Render the upgrade section...
     console.log("\t\tRendering upgrade " + upgradeName + " show="+showUpgrade);
+
+    if (showUpgrade == false) {
+        document.getElementById("upgrade1").style.visibility = "hidden";
+        document.getElementById("upgrade2").style.visibility = "hidden";
+        document.getElementById("upgrade3").style.visibility = "hidden";
+    }
+    else {
+        document.getElementById("upgrade1").style.visibility = "visible";
+        document.getElementById("upgrade2").style.visibility = "visible";
+        document.getElementById("upgrade3").style.visibility = "visible";
+    }
 
     document.getElementById("an_upgrade_name").innerHTML = "Upgrade: " + upgradeName;
     document.getElementById("an_upgrade_img").src = upgrade["img"];
@@ -387,11 +411,7 @@ function renderCharacter(data, skillName = "", upgradeName = "", showCharacter =
         document.getElementById("an_upgrade_level_" + (index + 1)).innerHTML = stats_html;
     });
 
-    if (showUpgrade == false) {
-        document.getElementById("upgrade1").style.display = "none";
-        document.getElementById("upgrade2").style.display = "none";
-        document.getElementById("upgrade3").style.display = "none";
-    }
+
 
     return document.getElementById("card_template").innerHTML;
 
