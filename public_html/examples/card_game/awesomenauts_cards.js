@@ -7,6 +7,7 @@
 
 var globalCharacterData;
 var globalCharacterNames = [];
+var globalSelectedCharacterNames =[];
 var globalCardSlot = 1;
 var globalQuestionNumber = 1;
 var globalMaxQuestionNumber = 5;
@@ -83,6 +84,8 @@ function generateQuestion() {
 
     }
 
+    globalSelectedCharacterNames = characters;
+
 
     var minAnswer = attribute_values.indexOf(Math.min.apply(null, attribute_values)) + 1;
     var maxAnswer = attribute_values.indexOf(Math.max.apply(null, attribute_values)) + 1;
@@ -104,7 +107,7 @@ function generateQuestion() {
 
         // Show the card for each character
         characterDetails = globalCharacterData[characterName];
-        cardHTML = renderCharacter(characterDetails);
+        cardHTML = renderCharacter(characterDetails,undefined, undefined, showCharacter = true, showSkill = false, showUpgrade = false);
         dealCard(cardHTML, slot = slot);
         slot += 1;
 
@@ -125,10 +128,27 @@ function answer(selection) {
     if (globalState == "PLAYING") {
         console.log("You choose answer " + selection);
         console.log("The correct answer was " + globalQuestionAnswer);
+
+        var slot = 1;
+        var cardHTML = "";
+        // Loop through the selected character names
+        globalSelectedCharacterNames.forEach(function (characterName) {
+
+            // Show the card for each character
+            var characterDetails = globalCharacterData[characterName];
+            cardHTML = renderCharacter(characterDetails,undefined, undefined, showCharacter = true, showSkill = true, showUpgrade = true);
+            dealCard(cardHTML, slot = slot);
+            slot += 1;
+
+        });
+
+
     }
     else {
         console.log("You cannot choose an answer in state " + globalState);
     }
+
+
 
 }
 
@@ -287,29 +307,29 @@ async function loadCardDataAsync() {
 
 }
 
-function renderCharacter(data, skillName = "", upgradeName = "") {
-
+function renderCharacter(data, skillName = "", upgradeName = "", showCharacter = true, showSkill = true, showUpgrade = true) {
+    // Character Data
     var characterName = data["name"];
     var characterImage = data["img"];
     var characterData = data;
 
-    console.log("Rendering character " + characterName);
-
+    // Skill data
     var skills = data["skills"];
     var skill = choose(skills);
     var skillName = skill["name"];
 
+    // Upgrade Data
     var upgrades = skill["upgrades"];
     var upgrade = choose(upgrades);
     var upgradeName = upgrade["name"];
 
+    // Render the character details...
+    console.log("Rendering character " + characterName + " show=" + showCharacter);
 
-
-    console.log("\tRendering skill " + skillName);
     document.getElementById("an_header").innerHTML = characterName;
     document.getElementById("an_img").src = characterImage;
 
-    // Print the key attributes and their values...
+    // Print the Character key attributes and their values...
     var key_data_items = ["Health", "Health Max", "Movement Speed", "Attack Type", "Role", "Mobility"];
     var stats_html = "";
 
@@ -320,8 +340,14 @@ function renderCharacter(data, skillName = "", upgradeName = "") {
 
     document.getElementById("an_stats").innerHTML = stats_html;
 
+    if (showCharacter == false) {
+        document.getElementById("character").style.display = "none";
+    }
+
 
     // Render the skill section of the card...
+    console.log("\tRendering skill " + skillName + " show="+showSkill);
+
     document.getElementById("an_skill_name").innerHTML = "Skill: " + skillName;
     document.getElementById("an_skill_img").src = skill["img"];
 
@@ -333,10 +359,15 @@ function renderCharacter(data, skillName = "", upgradeName = "") {
         stats_html += stat + ": " + skill_stats[stat] + "<br>";
     }
 
+    if (showSkill == false) {
+        document.getElementById("skill1").style.display = "none";
+        document.getElementById("skill2").style.display = "none";
+    }
+
     document.getElementById("an_skill_stats").innerHTML = stats_html;
 
     // Render the upgrade section...
-    console.log("\t\tRendering upgrade " + upgradeName);
+    console.log("\t\tRendering upgrade " + upgradeName + " show="+showUpgrade);
 
     document.getElementById("an_upgrade_name").innerHTML = "Upgrade: " + upgradeName;
     document.getElementById("an_upgrade_img").src = upgrade["img"];
@@ -356,6 +387,13 @@ function renderCharacter(data, skillName = "", upgradeName = "") {
         document.getElementById("an_upgrade_level_" + (index + 1)).innerHTML = stats_html;
     });
 
+    if (showUpgrade == false) {
+        document.getElementById("upgrade1").style.display = "none";
+        document.getElementById("upgrade2").style.display = "none";
+        document.getElementById("upgrade3").style.display = "none";
+    }
+
+    return document.getElementById("card_template").innerHTML;
 
 }
 
@@ -371,10 +409,10 @@ function showRandomCard() {
 function dealCard(cardHTML, slot = 1) {
 
     var card_id = "card" + slot;
-    var newCard = document.getElementById("card_template");
+    //var newCard = document.getElementById("card_template");
     var newSlot = document.getElementById(card_id);
 
-    newSlot.innerHTML = newCard.innerHTML;
+    newSlot.innerHTML = cardHTML;
 
 
 }
