@@ -7,13 +7,19 @@
 
 var globalCharacterData;
 var globalCharacterNames = [];
-var globalSelectedCharacterNames =[];
+var globalSelectedCharacterNames = [];
 var globalCardSlot = 1;
 var globalQuestionNumber = 1;
 var globalMaxQuestionNumber = 5;
 var globalQuestionOptions = 4;
 var globalQuestionAnswer;
 var globalState;
+var globalScore = 0;
+
+const STATE_LOADED = "Loaded";
+const STATE_PLAYING = "Playing";
+const STATE_RESULT = "Result";
+const STATE_FINISHED = "Finished";
 
 // Choose a random element from a list
 function choose(options) {
@@ -25,8 +31,10 @@ function choose(options) {
 function init() {
 
     console.log("Initialising...");
-    globalState = "LOADED";
-     renderState();
+    globalState = STATE_LOADED;
+    globalScore = 0;
+
+    renderState();
 
     loadCardData();
     //loadCardDataAsync();
@@ -37,21 +45,24 @@ function init() {
 // Start the game
 function startGame() {
 
- globalState = "PLAYING";
- globalQuestionNumber = 1;
-  generateQuestion();
- renderState();
+    globalState = STATE_PLAYING;
+    globalQuestionNumber = 1;
+    globalScore = 0;
+    generateQuestion();
+    renderState();
 
 }
 
 // Go to the next question
 function next() {
- globalQuestionNumber += 1;
- if (globalQuestionNumber > globalMaxQuestionNumber) {
-    globalState = "FINISHED";
- }
- generateQuestion();
-  renderState();
+    globalQuestionNumber += 1;
+    if (globalQuestionNumber > globalMaxQuestionNumber) {
+        globalState = STATE_FINISHED;
+    } else {
+        globalState = STATE_PLAYING;
+    }
+    generateQuestion();
+    renderState();
 
 }
 
@@ -77,7 +88,7 @@ function generateQuestion() {
         characterDetails = globalCharacterData[characterName];
 
         // If we don't have this attribute value already then add to the list
-        if (attribute_values.indexOf(characterDetails[attributeName]) == -1){
+        if (attribute_values.indexOf(characterDetails[attributeName]) == -1) {
             attribute_values.push(characterDetails[attributeName]);
             characters.push(characterName);
         }
@@ -93,8 +104,7 @@ function generateQuestion() {
 
     if (scale == "smallest") {
         globalQuestionAnswer = minAnswer;
-    }
-    else if (scale == "biggest") {
+    } else if (scale == "biggest") {
         globalQuestionAnswer = maxAnswer;
     }
 
@@ -108,7 +118,7 @@ function generateQuestion() {
 
         // Show the card for each character
         characterDetails = globalCharacterData[characterName];
-        cardHTML = renderCharacter(characterDetails,undefined, undefined, showCharacter = false, showSkill = false, showUpgrade = false);
+        cardHTML = renderCharacter(characterDetails, undefined, undefined, showCharacter = false, showSkill = false, showUpgrade = false);
         dealCard(cardHTML, slot = slot);
         slot += 1;
 
@@ -126,7 +136,10 @@ function generateQuestion() {
 
 // The user selected the answer to a question
 function answer(selection) {
-    if (globalState == "PLAYING") {
+    if (globalState == STATE_PLAYING) {
+
+        globalState = STATE_RESULT;
+
         console.log("You choose answer " + selection);
         console.log("The correct answer was " + globalQuestionAnswer);
 
@@ -137,18 +150,29 @@ function answer(selection) {
 
             // Show the card for each character
             var characterDetails = globalCharacterData[characterName];
-            cardHTML = renderCharacter(characterDetails,undefined, undefined, showCharacter = true, showSkill = false, showUpgrade = false);
+            cardHTML = renderCharacter(characterDetails, undefined, undefined, showCharacter = true, showSkill = false, showUpgrade = false);
             dealCard(cardHTML, slot = slot);
             slot += 1;
 
         });
 
+        var resultHTML;
+        if (selection == globalQuestionAnswer) {
+            resultHTML = "Correct";
+            globalScore += 1;
 
-    }
-    else {
+        } else {
+            resultHTML = "Wrong";
+        }
+
+        document.getElementById("result").innerHTML = resultHTML;
+
+
+    } else {
         console.log("You cannot choose an answer in state " + globalState);
     }
 
+    renderState();
 
 
 }
@@ -158,24 +182,40 @@ function renderState() {
     document.getElementById("state").innerHTML = globalState;
     document.getElementById("question").innerHTML = "Question #" + globalQuestionNumber;
 
-    if (globalState == "PLAYING") {
+    var bAnswersDisabled = true;
+
+    if (globalState == STATE_PLAYING) {
+        document.getElementById("start").style.display = "none";
+        document.getElementById("next").style.display = "none";
+        document.getElementById("result").style.visibility = "hidden";
+        bAnswersDisabled = false;
+    } else if (globalState == STATE_LOADED) {
+        document.getElementById("start").style.display = "block";
+        document.getElementById("next").style.display = "none";
+        document.getElementById("result").style.visibility = "hidden";
+    } else if (globalState == STATE_FINISHED) {
+        document.getElementById("start").style.display = "block";
+        document.getElementById("next").style.display = "none";
+        document.getElementById("result").style.visibility = "hidden";
+    } else if (globalState == STATE_RESULT) {
         document.getElementById("start").style.display = "none";
         document.getElementById("next").style.display = "block";
+        document.getElementById("result").style.visibility = "visible";
     }
-    else if (globalState == "LOADED") {
-            document.getElementById("start").style.display = "block";
-            document.getElementById("next").style.display = "none";
-            }
 
-    else if (globalState == "FINISHED") {
-            document.getElementById("start").style.display = "block";
-            document.getElementById("next").style.display = "none";
-            }
+    document.getElementById("score").innerHTML = "Score: " + globalScore;
 
-    var answersHTML="";
-    for (var i=1; i<globalMaxQuestionNumber;i++) {
-        answersHTML += '<button class="button" type="button" onclick="answer(' + i + ')">' + i + '</button>';
-        }
+    var answersHTML = "";
+    if (bAnswersDisabled == true) {
+        buttonState = "disabled";
+    } else {
+        buttonState = "";
+    }
+
+    for (var i = 1; i < globalMaxQuestionNumber; i++) {
+        //answersHTML += '<button class="button" type="button" onclick="answer(' + i + ') '  + buttonState + '>' + i + '</button>';
+        answersHTML += '<button class="button" type="button" onclick="answer(' + i + ')" ' + buttonState + '>' + i + '</button>';
+    }
     document.getElementById("answers").innerHTML = answersHTML;
 
 }
@@ -329,8 +369,7 @@ function renderCharacter(data, skillName = "", upgradeName = "", showCharacter =
 
     if (showCharacter == false) {
         document.getElementById("character").style.visibility = "hidden";
-    }
-    else {
+    } else {
         document.getElementById("character").style.visibility = "visible";
     }
 
@@ -352,13 +391,12 @@ function renderCharacter(data, skillName = "", upgradeName = "", showCharacter =
 
 
     // Render the skill section of the card...
-    console.log("\tRendering skill " + skillName + " show="+showSkill);
+    console.log("\tRendering skill " + skillName + " show=" + showSkill);
 
     if (showSkill == false) {
         document.getElementById("skill1").style.visibility = "hidden";
         document.getElementById("skill2").style.visibility = "hidden";
-    }
-    else {
+    } else {
         document.getElementById("skill1").style.visibility = "visible";
         document.getElementById("skill2").style.visibility = "visible";
 
@@ -380,14 +418,13 @@ function renderCharacter(data, skillName = "", upgradeName = "", showCharacter =
     document.getElementById("an_skill_stats").innerHTML = stats_html;
 
     // Render the upgrade section...
-    console.log("\t\tRendering upgrade " + upgradeName + " show="+showUpgrade);
+    console.log("\t\tRendering upgrade " + upgradeName + " show=" + showUpgrade);
 
     if (showUpgrade == false) {
         document.getElementById("upgrade1").style.visibility = "hidden";
         document.getElementById("upgrade2").style.visibility = "hidden";
         document.getElementById("upgrade3").style.visibility = "hidden";
-    }
-    else {
+    } else {
         document.getElementById("upgrade1").style.visibility = "visible";
         document.getElementById("upgrade2").style.visibility = "visible";
         document.getElementById("upgrade3").style.visibility = "visible";
